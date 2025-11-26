@@ -25,7 +25,7 @@ This script:
 
 1. Clone this repository:
    ```bash
-   git clone <your-repo-url>
+   git clone https://github.com/wi5nia/Microsoft-Ignite-PPTX-Downloader.git
    cd Microsoft-Ignite-PPTX-Downloader
    ```
 
