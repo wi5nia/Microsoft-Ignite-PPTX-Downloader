@@ -101,49 +101,7 @@ function Invoke-DownloadFile {
     }
 }
 
-function Invoke-DownloadSession {
-    <#
-    .SYNOPSIS
-        Downloads a single session's slides.
-    #>
-    param([PSCustomObject]$Session)
-    
-    $slideUrl = $Session.slideDeck
-    if (-not $slideUrl -or $slideUrl -eq "") {
-        $script:Counters.no_deck++
-        return @{ Status = "no_deck"; Code = 0 }
-    }
-    
-    $sessionCode = Invoke-SanitizeFilename -Value ($Session.sessionCode ?? "")
-    $title = Invoke-SanitizeFilename -Value ($Session.title ?? "untitled")
-    $destPath = Join-Path $DestinationPath "$sessionCode`_$title.pptx"
-    
-    # Skip if file already exists and has content
-    if (Test-Path $destPath) {
-        $fileInfo = Get-Item $destPath
-        if ($fileInfo.Length -gt 0) {
-            $script:Counters.existing++
-            return @{ Status = "existing"; Code = 0 }
-        }
-    }
-    
-    Write-Host "Downloading $sessionCode – $($Session.title)"
-    $downloadResult = Invoke-DownloadFile -Url $slideUrl -DestPath $destPath -SessionCode $sessionCode
-    
-    if ($downloadResult.Success) {
-        $script:Counters.downloaded++
-        return @{ Status = "downloaded"; Code = 1 }
-    }
-    else {
-        Write-Host "Failed to download $sessionCode`: $($downloadResult.Result)" -ForegroundColor Red
-        # Clean up failed download
-        if (Test-Path $destPath) {
-            Remove-Item $destPath -Force
-        }
-        $script:Counters.failed++
-        return @{ Status = "failed"; Code = 0 }
-    }
-}
+# (Invoke-DownloadSession function removed)
 
 function Start-Main {
     <#
