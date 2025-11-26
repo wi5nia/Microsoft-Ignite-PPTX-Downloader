@@ -1,99 +1,170 @@
 # Microsoft Ignite 2025 Slide Deck Downloader
 
-A simple Python script to bulk download PowerPoint slide decks from Microsoft Ignite 2025 conference sessions.
+Bulk download PowerPoint slide decks from Microsoft Ignite 2025 conference sessions. Available in both Python and PowerShell Core versions.
 
-> **⚠️ Disclaimer:** This script was vibe coded. No guarantees that it works perfectly or will continue to work if Microsoft changes their API. Use at your own risk!
+> **⚠️ Disclaimer:** These scripts were vibe coded. No guarantees that they work perfectly or will continue to work if Microsoft changes their API. Use at your own risk!
 
 ## What It Does
 
-This script:
-- 🔍 Fetches all sessions from the Microsoft Ignite 2025 API
-- 📥 Downloads PowerPoint slides for sessions that have them available
-- ⚡ **Uses concurrent downloads (10 parallel downloads)** for much faster performance
-- 💾 Saves files to `ignite_2025_slides/` directory with format: `{sessionCode}_{title}.pptx`
-- ⏭️ Skips sessions without slides
-- ✅ Skips files that already exist locally
-- 📊 Shows a summary of downloaded, skipped, and existing files
+Both scripts:
+- 🔍 Fetch all sessions from the Microsoft Ignite 2025 API
+- 📥 Download PowerPoint slides for sessions that have them available
+- ⚡ **Use concurrent downloads (10 parallel downloads by default)** for much faster performance
+- 💾 Save files to `ignite_2025_slides/` directory with format: `{sessionCode}_{title}.pptx`
+- ⏭️ Skip sessions without slides
+- ✅ Skip files that already exist locally
+- 📊 Show a summary of downloaded, skipped, and existing files
 
-## How to Run
+## Choose Your Version
 
-### Prerequisites
+### 🐍 Python Version (`download_ignite2025_slides.py`)
+**Best for:** Users comfortable with Python, Linux/macOS environments
 
-- **Python 3.7+**
+**Prerequisites:**
+- Python 3.7+
+- `requests` library (see requirements.txt)
 
-### Installation
+**Installation:**
+```bash
+git clone https://github.com/wi5nia/Microsoft-Ignite-PPTX-Downloader.git
+cd Microsoft-Ignite-PPTX-Downloader
+python3 -m pip install --user -r requirements.txt
+```
 
-1. Clone this repository:
-   ```bash
-   git clone https://github.com/wi5nia/Microsoft-Ignite-PPTX-Downloader.git
-   cd Microsoft-Ignite-PPTX-Downloader
-   ```
-
-2. Install dependencies:
-   ```bash
-   python3 -m pip install --user -r requirements.txt
-   ```
-
-   This installs:
-   - `requests` - for HTTP requests
-   - `urllib3<2` - version 1.x for compatibility with LibreSSL on macOS
-
-### Running the Script
-
-Simply run:
+**Usage:**
 ```bash
 python3 download_ignite2025_slides.py
 ```
 
-The script will:
-1. Connect to the Microsoft Ignite API
-2. Fetch all session metadata
-3. Download slides for each session that has them
-4. Print progress as it downloads
-5. Show a summary when complete
+### 💻 PowerShell Core Version (`Download-Ignite2025Slides.ps1`)
+**Best for:** Windows users, cross-platform environments, no external dependencies
 
-Example output:
+**Prerequisites:**
+- PowerShell Core 7.0+ (cross-platform PowerShell)
+
+**Installation:**
+
+**macOS:**
+```bash
+brew install powershell
+```
+
+**Windows:**
+```powershell
+winget install Microsoft.PowerShell
+```
+
+**Linux (Ubuntu/Debian):**
+```bash
+# Install via Snap
+sudo snap install powershell --classic
+
+# Or via package manager
+wget -q https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb
+sudo apt-get update
+sudo apt-get install -y powershell
+```
+
+**Usage:**
+```powershell
+# Make executable (Linux/macOS)
+chmod +x Download-Ignite2025Slides.ps1
+
+# Basic usage
+./Download-Ignite2025Slides.ps1
+
+# Advanced usage with custom parameters
+./Download-Ignite2025Slides.ps1 -MaxConcurrency 5 -DestinationPath "my_slides"
+
+# Get help
+Get-Help ./Download-Ignite2025Slides.ps1 -Full
+```
+
+## PowerShell Parameters
+
+- **`-MaxConcurrency`** (optional): Number of concurrent downloads (default: 10)
+- **`-DestinationPath`** (optional): Directory to save slides (default: "ignite_2025_slides")
+
+## Sample Output
+
 ```
 Fetching session catalogue...
-Found 334 sessions total
+Found 847 sessions total
 
 Downloading BRK123 – Building Modern Applications with Azure
-Downloading BRK456 – AI and Machine Learning Best Practices
-Downloading LAB789 – Hands-on with Azure Functions
-Progress: 50/334 sessions processed
-Progress: 100/334 sessions processed
+Downloading INT456 – Building Modern Applications with Containers
+Progress: 15/847 sessions processed
+Progress: 32/847 sessions processed
 ...
 
 ==================================================
 Summary:
-Downloaded: 87
-Skipped (no deck): 245
+Downloaded: 234
+Skipped (no deck): 456
 Skipped (already existed): 12
-Failed: 0
+Failed: 3
 ==================================================
 ```
+
+## Features Comparison
+
+| Feature | Python Version | PowerShell Version |
+|---------|----------------|-------------------|
+| **Cross-platform** | ✅ | ✅ |
+| **External dependencies** | ❌ (requires `requests`) | ✅ (none needed) |
+| **Concurrent downloads** | ✅ | ✅ |
+| **Progress tracking** | ✅ | ✅ |
+| **Resume capability** | ✅ | ✅ |
+| **Parameter validation** | Basic | ✅ Advanced |
+| **Built-in help system** | ❌ | ✅ |
+| **Windows integration** | Basic | ✅ Native |
 
 ## Background
 
 Microsoft publishes detailed metadata for Ignite sessions via a public API endpoint:
-```
+
+```text
 https://api-v2.ignite.microsoft.com/api/session/all/en-US
 ```
 
-Each session record can include a `slideDeck` property containing a URL to the corresponding PowerPoint deck hosted on `medius.microsoft.com`. The script:
-- Queries this API to get all sessions
-- Filters for sessions with slides available
-- Downloads the `.pptx` files with proper browser headers (to avoid 403 errors)
-- Sanitizes filenames by converting spaces to underscores and removing special characters
+Each session record can include a `slideDeck` property containing a URL to the corresponding PowerPoint deck hosted on `medius.microsoft.com`. Both scripts:
+
+- Query this API to get all sessions
+- Filter for sessions with slides available
+- Download the `.pptx` files with proper browser headers (to avoid 403 errors)
+- Sanitize filenames by converting spaces to underscores and removing special characters
 
 ## Troubleshooting
 
-**HTTP 403 Errors**: The script includes browser-like User-Agent and Referer headers to avoid being blocked by the CDN. If you still get 403 errors, Microsoft may have changed their security policies.
+### Common Issues
 
-**Download Failures**: Failed downloads are automatically removed (0-byte files won't be left behind). You can simply re-run the script to retry.
+**HTTP 403 Errors**: Both scripts include browser-like User-Agent and Referer headers to avoid being blocked by the CDN. If you still get 403 errors, Microsoft may have changed their security policies.
 
-**API Changes**: If the API structure changes, the script may break. This is expected for a vibe-coded utility!
+**Download Failures**: Failed downloads are automatically removed (0-byte files won't be left behind). You can simply re-run either script to retry.
+
+**API Changes**: If the API structure changes, the scripts may break. This is expected for vibe-coded utilities!
+
+### Python-Specific Issues
+
+**Import Errors**: Make sure you've installed the requirements: `python3 -m pip install -r requirements.txt`
+
+**SSL Issues on macOS**: The requirements.txt specifies `urllib3<2.0.0` for compatibility with LibreSSL on macOS.
+
+### PowerShell-Specific Issues
+
+**Permission Issues (Linux/macOS)**:
+```bash
+chmod +x Download-Ignite2025Slides.ps1
+```
+
+**Execution Policy (Windows)**:
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+**PowerShell Core Not Found**: Make sure you have PowerShell Core 7.0+ installed, not just Windows PowerShell 5.1.
 
 ## License
 
-Use freely. This is a simple utility script with no warranties or support.
+Use freely. These are simple utility scripts with no warranties or support.
